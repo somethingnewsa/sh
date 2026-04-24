@@ -5,13 +5,13 @@ echo "🚀 开始将 GNOME 彻底转换为 macOS Tahoe 风格..."
 
 # 1. 安装必要的依赖包
 echo "📦 正在安装依赖项..."
-sudo pacman -S --needed git gnome-tweaks extension-manager flatpak sassc glib2 imagemagick
+sudo pacman -S --needed git gnome-tweaks extension-manager flatpak sassc glib2 imagemagick gnome-shell-extensions
 
 # 2. 创建并清理临时工作目录
 mkdir -p ~/tahoe-theme-build
 cd ~/tahoe-theme-build
 
-# 3. 创建主题存放目录 (防止路径识别不到)
+# 3. 创建主题存放目录
 mkdir -p ~/.local/share/themes
 mkdir -p ~/.local/share/icons
 mkdir -p ~/.config/gtk-4.0
@@ -32,12 +32,18 @@ if [ ! -d "MacTahoe-gtk-theme" ]; then
 fi
 cd MacTahoe-gtk-theme
 
-# 使用 -p 参数强制安装到 local 目录，确保 Shell 主题能被插件读取
-./install.sh -n mactahoe -d all -l --shell -i simple -h bigger --round -p ~/.local/share/themes
+# 修正安装命令：
+# -n MacTahoe: 保持首字母大写
+# -d ~/.local/share/themes: 指定正确的主题目录
+# --shell: 安装 Shell 主题
+# -l: 为 libadwaita 安装
+./install.sh -n MacTahoe -d ~/.local/share/themes -l --shell -i simple -h bigger --round
 
 # 6. 解决 GTK4/libadwaita (新版应用) 不变色的问题
 echo "⚙️ 正在强制应用 GTK4 样式..."
-cp -r ~/.local/share/themes/MacTahoe-Dark/gtk-4.0/* ~/.config/gtk-4.0/
+if [ -d "$HOME/.local/share/themes/MacTahoe-Dark/gtk-4.0" ]; then
+    cp -r ~/.local/share/themes/MacTahoe-Dark/gtk-4.0/* ~/.config/gtk-4.0/
+fi
 
 # 7. 应用 GDM 登录界面主题 (可选)
 echo "🖥️ 正在准备 GDM 主题 (可能需要 sudo)..."
@@ -52,19 +58,20 @@ flatpak override --user --filesystem=xdg-config/gtk-4.0
 echo "📐 调整窗口按钮位置到左侧..."
 gsettings set org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
 
+# 10. 自动应用主题 (无需手动在 Tweaks 里选)
+echo "🎨 正在自动应用主题..."
+gnome-extensions enable user-theme@gnome-shell-extensions.gcampax.github.com 2>/dev/null
+gsettings set org.gnome.desktop.interface gtk-theme 'MacTahoe-Dark'
+gsettings set org.gnome.desktop.interface icon-theme 'MacTahoe'
+gsettings set org.gnome.shell.extensions.user-theme name 'MacTahoe-Dark'
+
 echo "--------------------------------------------------"
-echo "✅ 基础安装已完成！"
+echo "✅ 安装与配置已完成！"
 echo "--------------------------------------------------"
-echo "💡 请务必执行以下手动操作以激活主题："
-echo "1. 打开 '延伸插件管理器' (Extension Manager)："
-echo "   - 搜索并启用 'User Themes' (这是显示 Shell 选项的关键)"
-echo "   - 搜索并启用 'Dash to Dock' (Dock 栏)"
-echo "   - 搜索并启用 'Blur my Shell' (毛玻璃)"
-echo ""
-echo "2. 打开 '优化' (Gnome Tweaks) -> '外观'："
-echo "   - 更改 '图标' (Icons) 为: MacTahoe"
-echo "   - 更改 '外壳' (Shell) 为: MacTahoe-Dark"
-echo "   - 更改 '旧版应用' (Legacy Applications) 为: MacTahoe-Dark"
-echo ""
-echo "⚠️ 如果在 Tweaks 里看不到选项，请按 Alt+F2 输入 r 重启 GNOME，或重新登录。"
+echo "💡 如果部分应用没有立即变色："
+echo "1. 按 Alt+F2 输入 r 并回车 (X11) 或重新登录 (Wayland)。"
+echo "2. 确保 'User Themes' 扩展在 '延伸插件管理器' 中已启用。"
+echo "3. 推荐安装以下扩展以获得完整体验："
+echo "   - Dash to Dock (Dock 栏)"
+echo "   - Blur my Shell (毛玻璃效果)"
 echo "--------------------------------------------------"
