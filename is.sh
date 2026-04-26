@@ -59,11 +59,7 @@ echo "📐 调整窗口按钮位置到左侧..."
 gsettings set org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
 
 # 10. 自动应用主题 (无需手动在 Tweaks 里选)
-echo "🎨 正在自动应用主题..."
-gnome-extensions enable user-theme@gnome-shell-extensions.gcampax.github.com 2>/dev/null
-gsettings set org.gnome.desktop.interface gtk-theme 'MacTahoe-Dark'
-gsettings set org.gnome.desktop.interface icon-theme 'MacTahoe'
-gsettings set org.gnome.shell.extensions.user-theme name 'MacTahoe-Dark'
+
 
 echo "--------------------------------------------------"
 echo "✅ 安装与配置已完成！"
