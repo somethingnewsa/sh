@@ -39,6 +39,20 @@ if [ -f /etc/default/grub ]; then
     grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
+# 3. 删除 GRUB 模板中的 "Loading Linux..." / "Loading initial ramdisk..." echo 消息
+if [ -f /etc/grub.d/10_linux ]; then
+    if grep -q 'echo.*\$message.*grub_quote' /etc/grub.d/10_linux; then
+        echo "检测到 GRUB 模板中的加载消息，正在删除..."
+        cp /etc/grub.d/10_linux /etc/grub.d/10_linux.bak
+        sed -i '/echo.*$message.*grub_quote/d' /etc/grub.d/10_linux
+
+        echo "正在重新生成 GRUB 配置..."
+        grub-mkconfig -o /boot/grub/grub.cfg
+    else
+        echo "GRUB 模板中已无加载消息，跳过。"
+    fi
+fi
+
 echo "------------------------------------------------"
 echo "配置完成！请重启。"
 echo "重启后请再次运行 cat /proc/cmdline 检查是否有 'quiet' 字样。"
